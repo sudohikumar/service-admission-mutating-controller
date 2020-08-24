@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"admission-controller/helpers"
 	"admission-controller/router"
 	"encoding/json"
 	"fmt"
@@ -65,6 +66,10 @@ func admissionHelper(data []byte) (v1.AdmissionReview, error) {
 func performOperation(req *v1.AdmissionRequest) error {
 	if req.Resource != serviceResource {
 		log.Print("resource is not of service type")
+		return nil
+	}
+	// If kube-namespace, return from here and do nothing
+	if helpers.IsKubeNamespace(req.Namespace) {
 		return nil
 	}
 	raw := req.Object.Raw
