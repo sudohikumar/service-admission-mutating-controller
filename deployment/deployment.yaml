@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-admission-controller
+  namespace: admission-controller
+  labels:
+    app: service-admission-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-admission-controller
+  template:
+    metadata:
+      labels:
+        app: service-admission-controller
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1234
+      containers:
+        - name: server
+          image: service-controller:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8443
+              name: webhook-api
+          volumeMounts:
+            - name: admission-controller-tls
+              mountPath: /secrets/tls
+              readOnly: true
+      volumes:
+        - name: admission-controller-tls
+          secret:
+            secretName: admission-controller-tls
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-webhook
+  namespace: admission-controller
+spec:
+  selector:
+    app: service-admission-controller
+  ports:
+    - port: 443
+      targetPort: webhook-api
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: service-webhook
+webhooks:
+  - name: service-webhook.admission-controller.svc
+    clientConfig:
+      service:
+        name: service-webhook
+        namespace: admission-controller
+        path: "/admission"
+      caBundle: $CA_BUNDLE_VALUE                # To be replaced with actual value obtained by running setup.sh script
+    rules:
+      - operations: [ "CREATE" ]
+        apiGroups: [""]
+        apiVersions: ["*"]
+        resources: ["services", "service"]
+    admissionReviewVersions: ["v1", "v1beta1"]
+    sideEffects: None
