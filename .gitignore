@@ -1,1 +1,5 @@
 .idea
+image/service-controller
+secrets/*.crt
+secrets/*.key
+secrets/*.srl
