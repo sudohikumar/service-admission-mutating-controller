@@ -79,3 +79,6 @@ kubectl apply -f deployment.yaml
 - Replace `$CA_BUNDLE_VALUE` in `deployment.yaml` to the value obtained from `setup.sh` script. Value is stored in variable `$ca_pem_b64` in script.
 - Secret is mounted in `deployment.yaml` on the path `/secrets/tls`. This path is used in code to do TLS Authentication. 
 - Admission Controllers only run with TLS configuration.
+
+### References:
+- https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers
