@@ -57,7 +57,7 @@ webhooks:
         name: service-webhook
         namespace: admission-controller
         path: "/admission"
-      caBundle: $CA_BUNDLE_VALUE                # To be replaced with actual value obtained by running setup.sh script
+      caBundle: $CA_BUNDLE
     rules:
       - operations: [ "CREATE" ]
         apiGroups: [""]

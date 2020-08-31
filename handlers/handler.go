@@ -3,6 +3,7 @@ package handlers
 import (
 	"admission-controller/helpers"
 	"admission-controller/router"
+	"admission-controller/structures"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -58,9 +59,26 @@ func admissionHelper(data []byte) (v1.AdmissionReview, error) {
 		}
 	} else {
 		admissionReviewResponse.Response.Allowed = true
+		admissionReviewResponse.Response.Patch = createPatch()
+		pt := v1.PatchTypeJSONPatch
+		admissionReviewResponse.Response.PatchType = &pt
 	}
 	admissionReviewReq.Response = admissionReviewResponse.Response
 	return admissionReviewReq, nil
+}
+
+func createPatch() []byte {
+	var p []structures.Patch
+	patch := structures.Patch{
+		Op:    "add",
+		Path:  "/metadata/labels",
+		Value: map[string]string{
+			"mutated-via-controller": "true",
+		},
+	}
+	p = append(p, patch)
+	b, _ := json.Marshal(p)
+	return b
 }
 
 func performOperation(req *v1.AdmissionRequest) error {

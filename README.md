@@ -1,10 +1,16 @@
-## Admission Controller
+## Admission Controller & Mutating Webhook
 
 This is a simple admission controller written in golang. Objective of the controller is that this controller intercepts incoming `k8s services` and checks if the name of the service has `simple` in it. 
 If the service contains `simple`, this controller rejects that service and gives error as follows.
 
 ```bash
 Error from server: admission webhook "service-webhook.admission-controller.svc" denied the request: service name should not contain 'simple' word
+```
+
+If the service doesn't have `simple` word, it will mutate the service to add the following label
+ 
+```
+mutated-via-controller: "true"
 ```
 
 ### Setup
